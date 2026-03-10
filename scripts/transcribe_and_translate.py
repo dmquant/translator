@@ -17,7 +17,7 @@ def translate_with_gemini(text, target_lang, api_key):
         # Using the newest model ID format
         prompt = f"Translate the following technical text into {target_lang}. Return ONLY the translated text, no explanation.\n\nText: {text}"
         response = client.models.generate_content(
-            model='gemini-2.0-flash-lite-preview-02-05', # robust latest
+            model='gemini-3.1-flash-lite-preview', 
             contents=prompt
         )
         return response.text.strip()
