@@ -3,18 +3,26 @@ import json
 import subprocess
 import os
 import traceback
+import warnings
 from deep_translator import GoogleTranslator
-import google.generativeai as genai
+
+# Suppress annoying FutureWarnings about python version
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+from google import genai
 
 def translate_with_gemini(text, target_lang, api_key):
     try:
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-3.1-flash-lite-preview') 
+        client = genai.Client(api_key=api_key)
+        # Using the newest model ID format
         prompt = f"Translate the following technical text into {target_lang}. Return ONLY the translated text, no explanation.\n\nText: {text}"
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model='gemini-2.0-flash-lite-preview-02-05', # robust latest
+            contents=prompt
+        )
         return response.text.strip()
     except Exception as e:
-        print(f"LOG: Gemini translation failed: {e}")
+        print(f"LOG: Gemini translation failed: {e}\n")
         return None
 
 def main():
