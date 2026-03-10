@@ -8,6 +8,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get('video') as File;
     const targetLang = formData.get('lang') as string || 'zh-CN';
+    const engine = formData.get('engine') as string || 'google';
 
     if (!file) {
       return NextResponse.json({ error: 'No video file uploaded' }, { status: 400 });
@@ -23,7 +24,10 @@ export async function POST(req: NextRequest) {
     const scriptPath = path.join(process.cwd(), 'scripts', 'transcribe_and_translate.py');
     
     return new Promise<NextResponse>((resolve) => {
-      const pyProcess = spawn('python3', [scriptPath, filePath, targetLang]);
+      // Pass current environment to spawn so GEMINI_API_KEY is available
+      const pyProcess = spawn('python3', [scriptPath, filePath, targetLang, engine], {
+        env: { ...process.env }
+      });
       
       let output = '';
       let error = '';
@@ -40,7 +44,7 @@ export async function POST(req: NextRequest) {
 
       pyProcess.on('close', async (code) => {
         if (code !== 0) {
-          const errMsg = output.match(/ERROR: (.*)/)?.[1] || error || 'Transcription/Translation script failed';
+          const errMsg = output.match(/ERROR: (.*)/)?.[1] || error || 'Transcription/Translation failed';
           resolve(NextResponse.json({ error: errMsg }, { status: 500 }));
         } else {
           const match = output.match(/DONE_JSON_FILE:(.*)/);
@@ -54,7 +58,7 @@ export async function POST(req: NextRequest) {
               videoFile: filePath
             }));
           } else {
-            const errMsg = output.match(/ERROR: (.*)/)?.[1] || 'Could not find JSON output from script';
+            const errMsg = output.match(/ERROR: (.*)/)?.[1] || 'Could not find JSON output';
             resolve(NextResponse.json({ error: errMsg }, { status: 500 }));
           }
         }
