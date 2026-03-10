@@ -11,19 +11,27 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 from google import genai
 
+import time
+
 def translate_with_gemini(text, target_lang, api_key):
-    try:
-        client = genai.Client(api_key=api_key)
-        # Using the newest model ID format
-        prompt = f"Translate the following technical text into {target_lang}. Return ONLY the translated text, no explanation.\n\nText: {text}"
-        response = client.models.generate_content(
-            model='gemini-3.1-flash-lite-preview', 
-            contents=prompt
-        )
-        return response.text.strip()
-    except Exception as e:
-        print(f"LOG: Gemini translation failed: {e}\n")
-        return None
+    client = genai.Client(api_key=api_key)
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            prompt = f"Translate the following technical text into {target_lang}. Return ONLY the translated text, no explanation.\n\nText: {text}"
+            response = client.models.generate_content(
+                model='gemini-3.1-flash-lite-preview', 
+                contents=prompt
+            )
+            return response.text.strip()
+        except Exception as e:
+            if "503" in str(e) and attempt < max_retries - 1:
+                wait_time = (attempt + 1) * 2
+                print(f"LOG: Gemini busy (503), retrying in {wait_time}s...\n")
+                time.sleep(wait_time)
+                continue
+            print(f"LOG: Gemini translation failed: {e}\n")
+            return None
 
 def main():
     try:
