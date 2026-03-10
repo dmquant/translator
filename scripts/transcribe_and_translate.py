@@ -9,8 +9,8 @@ import google.generativeai as genai
 def translate_with_gemini(text, target_lang, api_key):
     try:
         genai.configure(api_key=api_key)
-        # Using the latest 2.0 Flash Lite preview model
-        model = genai.GenerativeModel('gemini-2.0-flash-lite-preview-02-05') 
+        # Using the confirmed 3.1 Flash Lite preview model
+        model = genai.GenerativeModel('gemini-3.1-flash-lite-preview') 
         prompt = f"Translate the following technical text into {target_lang}. Return ONLY the translated text, no explanation.\n\nText: {text}"
         response = model.generate_content(prompt)
         return response.text.strip()
