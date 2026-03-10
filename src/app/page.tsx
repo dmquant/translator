@@ -121,7 +121,7 @@ export default function Home() {
               <label>3. Translation Engine</label>
               <select value={engine} onChange={e => setEngine(e.target.value)}>
                 <option value="google">Google Translate</option>
-                <option value="gemini">Gemini 1.5 Flash Lite</option>
+                <option value="gemini">Gemini 2.0 Flash Lite</option>
               </select>
               {engine === 'gemini' && <p style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '5px' }}>Requires GEMINI_API_KEY in .env.local</p>}
             </div>
