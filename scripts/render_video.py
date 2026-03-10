@@ -82,12 +82,12 @@ def main():
         # 3. Remotion Config
         video_public_path = os.path.join(public_dir, "original.mp4")
         subprocess.run(["cp", input_video, video_public_path], check=True)
-        
+        # Update segments.json in remotion/src
         segments_json_path = os.path.join(remotion_dir, "src", "segments.json")
         with open(segments_json_path, "w", encoding="utf-8") as f:
             json.dump(segments, f, ensure_ascii=False, indent=2)
-            
-        fps = 30
+
+        fps = 60
         duration_frames = math.ceil(input_video_duration * fps)
         config_data = {
             "durationInFrames": duration_frames,
