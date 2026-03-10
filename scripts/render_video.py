@@ -24,10 +24,6 @@ def main():
         voice = sys.argv[3]
         output_video = sys.argv[4]
         
-        if not os.path.exists(translated_json):
-            print(f"ERROR: JSON file not found: {translated_json}")
-            sys.exit(1)
-
         with open(translated_json, "r", encoding="utf-8") as f:
             segments = json.load(f)
             
@@ -35,26 +31,26 @@ def main():
         public_dir = os.path.join(remotion_dir, "public")
         vos_dir = os.path.join(public_dir, "vos")
         vos_fixed_dir = os.path.join(public_dir, "vos_fixed")
-        
         os.makedirs(vos_dir, exist_ok=True)
         os.makedirs(vos_fixed_dir, exist_ok=True)
         
-        # 1. Voiceovers
-        print(f"Generating voiceovers using {voice}...")
+        total = len(segments)
+        print(f"PROGRESS: Generating {total} voiceover segments...")
+        sys.stdout.flush()
+
         for i, seg in enumerate(segments):
             text = seg["text"]
             filename = os.path.join(vos_dir, f"s{i}.mp3")
+            print(f"PROGRESS: TTS generation {i+1}/{total}...")
+            sys.stdout.flush()
             res = subprocess.run(["edge-tts", "--voice", voice, "--text", text, "--write-media", filename], capture_output=True, text=True)
             if res.returncode != 0:
-                print(f"ERROR: edge-tts failed for segment {i}: {res.stderr}")
+                print(f"ERROR: edge-tts failed for segment {i}")
                 sys.exit(1)
             
-        # 2. Overlaps
-        print("Optimizing audio alignment...")
+        print("PROGRESS: Optimizing audio alignment and speed...")
+        sys.stdout.flush()
         input_video_duration = get_duration(input_video)
-        if input_video_duration == 0:
-            print("ERROR: Could not determine video duration")
-            sys.exit(1)
 
         for i in range(len(segments)):
             input_file = os.path.join(vos_dir, f"s{i}.mp3")
@@ -82,36 +78,37 @@ def main():
         # 3. Remotion Config
         video_public_path = os.path.join(public_dir, "original.mp4")
         subprocess.run(["cp", input_video, video_public_path], check=True)
-        # Update segments.json in remotion/src
-        segments_json_path = os.path.join(remotion_dir, "src", "segments.json")
-        with open(segments_json_path, "w", encoding="utf-8") as f:
+        
+        with open(os.path.join(remotion_dir, "src", "segments.json"), "w", encoding="utf-8") as f:
             json.dump(segments, f, ensure_ascii=False, indent=2)
-
+            
         fps = 60
         duration_frames = math.ceil(input_video_duration * fps)
         config_data = {
-            "durationInFrames": duration_frames,
-            "fps": fps,
-            "videoSrc": "original.mp4",
-            "videoDuration": input_video_duration
+            "durationInFrames": duration_frames, "fps": fps,
+            "videoSrc": "original.mp4", "videoDuration": input_video_duration
         }
         with open(os.path.join(remotion_dir, "src", "config.json"), "w", encoding="utf-8") as f:
             json.dump(config_data, f, ensure_ascii=False, indent=2)
             
-        # 4. Render
-        print("Starting Remotion render...")
+        print("PROGRESS: Starting Remotion render engine (60fps)...")
+        sys.stdout.flush()
         abs_output = os.path.abspath(output_video)
+        
+        # We can use Popen to stream Remotion's own progress output if we wanted more detail
         result = subprocess.run(["npx", "remotion", "render", "Main", abs_output, "-y"], cwd=remotion_dir, capture_output=True, text=True)
         
         if result.returncode == 0:
             print("DONE_VIDEO_FILE:" + abs_output)
+            sys.stdout.flush()
         else:
             print(f"ERROR: Remotion render failed: {result.stderr}")
+            sys.stdout.flush()
             sys.exit(1)
 
     except Exception as e:
-        print(f"ERROR: Rendering process failed: {e}")
-        traceback.print_exc()
+        print(f"ERROR: {e}")
+        sys.stdout.flush()
         sys.exit(1)
 
 if __name__ == "__main__":

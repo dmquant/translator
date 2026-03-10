@@ -26,10 +26,40 @@ export default function Home() {
     { code: 'ko', label: 'Korean' }
   ];
 
+  const readStream = async (response: Response, onData: (data: string) => void) => {
+    const reader = response.body?.getReader();
+    if (!reader) return '';
+    const decoder = new TextDecoder();
+    let fullOutput = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value);
+      const parts = chunk.split(/(DATA:|LOG:|ERROR:|CLOSE:)/);
+      let currentPrefix = '';
+      for (let part of parts) {
+        if (['DATA:', 'LOG:', 'ERROR:', 'CLOSE:'].includes(part)) {
+          currentPrefix = part;
+          continue;
+        }
+        if (!part) continue;
+        if (currentPrefix === 'DATA:') {
+          onData(part);
+          fullOutput += part;
+        } else if (currentPrefix === 'LOG:') {
+          onData(part);
+        } else if (currentPrefix === 'ERROR:') {
+          throw new Error(part);
+        }
+      }
+    }
+    return fullOutput;
+  };
+
   const handleUpload = async () => {
     if (!file) return;
     setStatus('processing');
-    setLogs(`Uploading and running Whisper + ${engine} translation...\nThis may take a few minutes.`);
+    setLogs('');
     
     const formData = new FormData();
     formData.append('video', file);
@@ -38,20 +68,60 @@ export default function Home() {
 
     try {
       const res = await fetch('/api/upload', { method: 'POST', body: formData });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      if (!res.ok) throw new Error('Upload failed');
       
-      setVideoFile(data.videoFile);
-      setJsonFile(data.jsonFile);
-      setLogs(prev => prev + '\nTranscription & Translation complete!\nFetching voices...');
+      const fullOutput = await readStream(res, (data) => {
+        setLogs(prev => prev + data);
+      });
+
+      const jsonMatch = fullOutput.match(/DONE_JSON_FILE:(.*)/);
+      const videoMatch = fullOutput.match(/DONE_VIDEO_FILE:(.*)/);
+      
+      if (jsonMatch && videoMatch) {
+        setJsonFile(jsonMatch[1].trim());
+        setVideoFile(videoMatch[1].trim());
+      } else {
+        throw new Error('Failed to capture processed file paths');
+      }
       
       const langPrefix = targetLang.split('-')[0];
       const voiceRes = await fetch(`/api/voices?lang=${langPrefix}`);
       const voiceData = await voiceRes.json();
-      
       setVoices(voiceData.voices || []);
       if (voiceData.voices?.length > 0) setSelectedVoice(voiceData.voices[0].Name);
+      
       setStatus('selecting_voice');
+    } catch (err: any) {
+      setStatus('error');
+      setLogs(prev => prev + '\nError: ' + err.message);
+    }
+  };
+
+  const handleRender = async () => {
+    setStatus('rendering');
+    setLogs('');
+    try {
+      const res = await fetch('/api/convert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ videoFile, jsonFile, voice: selectedVoice })
+      });
+      if (!res.ok) throw new Error('Render request failed');
+      
+      const fullOutput = await readStream(res, (data) => {
+        setLogs(prev => prev + data);
+      });
+
+      const videoMatch = fullOutput.match(/DONE_VIDEO_FILE:(.*)/);
+      if (videoMatch) {
+        // Derive public URL from absolute path
+        const absPath = videoMatch[1].trim();
+        const filename = absPath.split('/').pop();
+        setOutputUrl('/rendered/' + filename);
+        setStatus('done');
+      } else {
+        throw new Error('Could not find rendered video path');
+      }
     } catch (err: any) {
       setStatus('error');
       setLogs(prev => prev + '\nError: ' + err.message);
@@ -60,7 +130,6 @@ export default function Home() {
 
   const playSample = async () => {
     if (!selectedVoice) return;
-    setLogs(prev => prev + `\nGenerating sample for ${selectedVoice}...`);
     try {
       const res = await fetch('/api/sample', {
         method: 'POST',
@@ -73,26 +142,6 @@ export default function Home() {
         setTimeout(() => audioRef.current?.play(), 100);
       }
     } catch (e) { console.error(e); }
-  };
-
-  const handleRender = async () => {
-    setStatus('rendering');
-    setLogs(prev => prev + '\nRendering final video via Remotion...');
-    try {
-      const res = await fetch('/api/convert', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoFile, jsonFile, voice: selectedVoice })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Rendering failed');
-      setOutputUrl(data.url);
-      setStatus('done');
-      setLogs(prev => prev + '\nRender complete!');
-    } catch (err: any) {
-      setStatus('error');
-      setLogs(prev => prev + '\nError: ' + err.message);
-    }
   };
 
   return (
@@ -109,23 +158,19 @@ export default function Home() {
               <label>1. Select Video</label>
               <input type="file" accept="video/*" onChange={e => setFile(e.target.files?.[0] || null)} />
             </div>
-
             <div className="form-group">
               <label>2. Target Language</label>
               <select value={targetLang} onChange={e => setTargetLang(e.target.value)}>
                 {languages.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
               </select>
             </div>
-
             <div className="form-group">
               <label>3. Translation Engine</label>
               <select value={engine} onChange={e => setEngine(e.target.value)}>
                 <option value="google">Google Translate</option>
                 <option value="gemini">Gemini 3.1 Flash Lite</option>
               </select>
-              {engine === 'gemini' && <p style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '5px' }}>Requires GEMINI_API_KEY in .env.local</p>}
             </div>
-
             <button className="primary-btn" onClick={handleUpload} disabled={!file}>Start Processing</button>
           </div>
         )}
