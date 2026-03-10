@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "studio": "cd remotion && npx remotion studio src/index.ts --port 3001"
   },
   "dependencies": {
     "next": "16.1.6",

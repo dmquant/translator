@@ -65,8 +65,16 @@ Ensure you have the following installed:
    npm run dev
    ```
 
-4. **Access the App | 访问应用**:
+4. **Start Remotion Studio (Optional) | 启动编辑器 (可选)**:
+   If you want to live-edit the results:
+   如果您想实时编辑结果：
+   ```bash
+   npm run studio
+   ```
+
+5. **Access the App | 访问应用**:
    Open [http://localhost:3000](http://localhost:3000) in your browser.
+   The editor will be available at [http://localhost:3001](http://localhost:3001).
 
 ---
 

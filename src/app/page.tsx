@@ -178,12 +178,17 @@ export default function Home() {
           <div className="result-section">
             <h2>Success!</h2>
             <video src={outputUrl} controls className="video-player" />
-            <a href={outputUrl} download="Translated_Video.mp4" className="primary-btn download-btn">
-              Download Video
-            </a>
-            <button className="secondary-btn" onClick={() => { setStatus('idle'); setFile(null); setOutputUrl(''); setLogs(''); }}>
-              Start Over
-            </button>
+            <div className="button-group" style={{ flexDirection: 'column' }}>
+              <a href={outputUrl} download="Translated_Video.mp4" className="primary-btn download-btn">
+                Download Video
+              </a>
+              <a href="http://localhost:3001" target="_blank" rel="noreferrer" className="secondary-btn download-btn">
+                Open in Editor (Remotion Studio)
+              </a>
+              <button className="secondary-btn" onClick={() => { setStatus('idle'); setFile(null); setOutputUrl(''); setLogs(''); }}>
+                Start Over
+              </button>
+            </div>
           </div>
         )}
 
