@@ -1,0 +1,260 @@
+[
+  {
+    "start": 0.0,
+    "end": 5.0,
+    "original_text": "Questions about machines' souls have shifted from the realm of abstract speculation",
+    "text": "关于机器灵魂的问题已经从抽象思辨的领域转向了"
+  },
+  {
+    "start": 5.0,
+    "end": 8.0,
+    "original_text": "to the immediate reality of engineering and law.",
+    "text": "工程和法律的直接现实。"
+  },
+  {
+    "start": 8.0,
+    "end": 14.0,
+    "original_text": "Contemporary philosophy now applies its analytical tools to tackle immediate threats to our survival.",
+    "text": "当代哲学现在运用其分析工具来解决对我们生存的直接威胁。"
+  },
+  {
+    "start": 14.0,
+    "end": 18.0,
+    "original_text": "We are regulating algorithmic bias, protecting human agency,",
+    "text": "我们正在规范算法偏差，保护人类能动性，"
+  },
+  {
+    "start": 18.0,
+    "end": 21.0,
+    "original_text": "and mitigating deep-seated structural inequalities.",
+    "text": "并缓解根深蒂固的结构性不平等。"
+  },
+  {
+    "start": 21.0,
+    "end": 26.0,
+    "original_text": "Viewing artificial intelligence solely as a logical puzzle ignores the stakes.",
+    "text": "仅将人工智能视为逻辑难题会忽视其中的风险。"
+  },
+  {
+    "start": 26.0,
+    "end": 31.0,
+    "original_text": "AI is an active agent currently rewriting the rules of societal power.",
+    "text": "人工智能是目前正在改写社会权力规则的积极推动者。"
+  },
+  {
+    "start": 31.0,
+    "end": 36.0,
+    "original_text": "The foundational debate in modern AI philosophy centers on a strict boundary.",
+    "text": "现代人工智能哲学的基本争论集中在严格的边界上。"
+  },
+  {
+    "start": 36.0,
+    "end": 40.0,
+    "original_text": "We must distinguish between a machine that mathematically processes information",
+    "text": "我们必须区分以数学方式处理信息的机器"
+  },
+  {
+    "start": 40.0,
+    "end": 43.0,
+    "original_text": "and a mind that actually experiences the world.",
+    "text": "以及真正体验世界的头脑。"
+  },
+  {
+    "start": 43.0,
+    "end": 48.0,
+    "original_text": "We can model this boundary by comparing human cognition to wide computationalism.",
+    "text": "我们可以通过将人类认知与广泛的计算主义进行比较来模拟这个边界。"
+  },
+  {
+    "start": 48.0,
+    "end": 54.0,
+    "original_text": "Wide computationalism views the mind as an information processing system of discrete inputs and outputs.",
+    "text": "广义计算主义将思维视为离散输入和输出的信息处理系统。"
+  },
+  {
+    "start": 54.0,
+    "end": 58.0,
+    "original_text": "Humans, however, possess qualia, the subjective experience of life.",
+    "text": "然而，人类拥有感受性，即生活的主观体验。"
+  },
+  {
+    "start": 58.0,
+    "end": 61.0,
+    "original_text": "Because AI operates within a closed data loop,",
+    "text": "由于人工智能在封闭的数据循环内运行，"
+  },
+  {
+    "start": 61.0,
+    "end": 66.0,
+    "original_text": "it lacks the physical embodiment required to generate this subjective experience.",
+    "text": "它缺乏产生这种主观体验所需的物理体现。"
+  },
+  {
+    "start": 66.0,
+    "end": 69.0,
+    "original_text": "Without the capacity to experience the world,",
+    "text": "没有能力去体验这个世界，"
+  },
+  {
+    "start": 69.0,
+    "end": 75.0,
+    "original_text": "an AI's legal and moral standing remains that of a tool distinct from human consciousness.",
+    "text": "人工智能的法律和道德地位仍然是一种有别于人类意识的工具。"
+  },
+  {
+    "start": 75.0,
+    "end": 77.0,
+    "original_text": "Beyond the boundaries of the mind,",
+    "text": "超越心灵的界限，"
+  },
+  {
+    "start": 77.0,
+    "end": 83.0,
+    "original_text": "developers are translating traditional moral frameworks like virtue ethics directly into the regulation of code.",
+    "text": "开发人员正在将美德伦理等传统道德框架直接转化为代码监管。"
+  },
+  {
+    "start": 84.0,
+    "end": 88.0,
+    "original_text": "The most acute danger in this process is algorithmic bias.",
+    "text": "这个过程中最严重的危险是算法偏差。"
+  },
+  {
+    "start": 88.0,
+    "end": 93.0,
+    "original_text": "When engineers train new systems using historical, prejudiced data without rigorous filtering,",
+    "text": "当工程师使用历史的、有偏见的数据而不经过严格的过滤来训练新系统时，"
+  },
+  {
+    "start": 93.0,
+    "end": 96.0,
+    "original_text": "they automate and scale human flaws.",
+    "text": "他们自动化并缩小人类缺陷。"
+  },
+  {
+    "start": 96.0,
+    "end": 99.0,
+    "original_text": "Health AI represents a high stakes environment,",
+    "text": "健康人工智能代表着一个高风险的环境，"
+  },
+  {
+    "start": 99.0,
+    "end": 104.0,
+    "original_text": "where the efficiency of a black box system can threaten human life and patient autonomy.",
+    "text": "黑匣子系统的效率可能会威胁到人类的生命和患者的自主权。"
+  },
+  {
+    "start": 104.0,
+    "end": 109.0,
+    "original_text": "This risk is why modern ethics mandates explainability in algorithmic design.",
+    "text": "这种风险就是现代伦理要求算法设计具有可解释性的原因。"
+  },
+  {
+    "start": 109.0,
+    "end": 116.0,
+    "original_text": "Explainability is the requirement that AI systems provide transparent, understandable reasoning for their diagnostic decisions.",
+    "text": "可解释性是指人工智能系统为其诊断决策提供透明、易于理解的推理的要求。"
+  },
+  {
+    "start": 116.0,
+    "end": 121.0,
+    "original_text": "Treating transparency as a moral obligation protects patient interests,",
+    "text": "将透明度视为一项道德义务可以保护患者利益，"
+  },
+  {
+    "start": 121.0,
+    "end": 125.0,
+    "original_text": "and preserves human agency over automated diagnostic systems.",
+    "text": "并保留人类对自动诊断系统的代理权。"
+  },
+  {
+    "start": 125.0,
+    "end": 129.0,
+    "original_text": "Feminist and post-colonial tech philosophies expand this critique",
+    "text": "女权主义和后殖民科技哲学扩大了这种批评"
+  },
+  {
+    "start": 129.0,
+    "end": 134.0,
+    "original_text": "by exposing the relationship between technological design and societal power.",
+    "text": "通过揭示技术设计与社会权力之间的关系。"
+  },
+  {
+    "start": 134.0,
+    "end": 140.0,
+    "original_text": "Mapping contemporary research against ethical frameworks reveals how unexamined algorithmic systems",
+    "text": "将当代研究与道德框架进行映射揭示了未经审查的算法系统如何"
+  },
+  {
+    "start": 140.0,
+    "end": 144.0,
+    "original_text": "automatically absorb and perpetuate historical power imbalances.",
+    "text": "自动吸收并延续历史权力失衡。"
+  },
+  {
+    "start": 144.0,
+    "end": 149.0,
+    "original_text": "At these specific nodes, biased algorithms often inflict epistemic injustice.",
+    "text": "在这些特定节点，有偏见的算法常常会造成认知上的不公正。"
+  },
+  {
+    "start": 149.0,
+    "end": 154.0,
+    "original_text": "Epistemic injustice is a phenomenon where knowledge systems systematically silence,",
+    "text": "认知不公正是一种知识系统系统性沉默的现象，"
+  },
+  {
+    "start": 154.0,
+    "end": 158.0,
+    "original_text": "stereotype, or harm marginalized demographic groups.",
+    "text": "刻板印象，或伤害边缘化人口群体。"
+  },
+  {
+    "start": 158.0,
+    "end": 162.0,
+    "original_text": "Developers who ignore the historical and intersectional context of their data",
+    "text": "忽视数据历史和交叉背景的开发人员"
+  },
+  {
+    "start": 162.0,
+    "end": 165.0,
+    "original_text": "risk building more than just flawed technology.",
+    "text": "构建的风险不仅仅是有缺陷的技术。"
+  },
+  {
+    "start": 165.0,
+    "end": 168.0,
+    "original_text": "They are engineering tools for systemic discrimination.",
+    "text": "它们是系统性歧视的工程工具。"
+  },
+  {
+    "start": 168.0,
+    "end": 176.0,
+    "original_text": "The value of contemporary AI philosophy is its ability to force technology to operate within a defined cultural and political context.",
+    "text": "当代人工智能哲学的价值在于它能够迫使技术在特定的文化和政治背景下运行。"
+  },
+  {
+    "start": 176.0,
+    "end": 181.0,
+    "original_text": "Integrating these ethical frameworks directly into policy and system design",
+    "text": "将这些道德框架直接整合到政策和系统设计中"
+  },
+  {
+    "start": 181.0,
+    "end": 186.0,
+    "original_text": "provides a necessary mechanism for navigating a world saturated by technology.",
+    "text": "为驾驭技术饱和的世界提供了必要的机制。"
+  },
+  {
+    "start": 186.0,
+    "end": 190.0,
+    "original_text": "Moving from theoretical speculation to enforceable policy",
+    "text": "从理论推测转向可执行政策"
+  },
+  {
+    "start": 190.0,
+    "end": 196.0,
+    "original_text": "allows us to shape AI development so it supports human flourishing rather than undermining it.",
+    "text": "使我们能够塑造人工智能的发展，使其支持而不是破坏人类的繁荣。"
+  }
+]

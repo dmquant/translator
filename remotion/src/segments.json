@@ -1,0 +1,554 @@
+[
+  {
+    "start": 0.0,
+    "end": 2.7,
+    "original_text": "When you look around to navigate this room,",
+    "text": "当你环顾四周浏览这个房间时，"
+  },
+  {
+    "start": 2.7,
+    "end": 7.0,
+    "original_text": "the experience feels entirely unified and instantaneous.",
+    "text": "这种体验感觉完全统一且即时。"
+  },
+  {
+    "start": 7.0,
+    "end": 12.5,
+    "original_text": "You open your eyes and a seamless, conscious picture of the world simply appears.",
+    "text": "当你睁开眼睛时，一幅无缝的、有意识的世界图景就出现了。"
+  },
+  {
+    "start": 12.5,
+    "end": 17.0,
+    "original_text": "Standard medical logic dictates that this conscious experience of sight",
+    "text": "标准医学逻辑表明，这种有意识的视觉体验"
+  },
+  {
+    "start": 17.0,
+    "end": 22.5,
+    "original_text": "relies strictly on a pathway ending at the primary visual cortex, known as V1.",
+    "text": "严格依赖于终止于初级视觉皮层的通路，即 V1。"
+  },
+  {
+    "start": 22.5,
+    "end": 26.5,
+    "original_text": "V1 is the specialized cortical tissue at the back of your head,",
+    "text": "V1 是位于后脑勺的特殊皮质组织，"
+  },
+  {
+    "start": 26.5,
+    "end": 30.5,
+    "original_text": "responsible for generating the visual images you actually experience.",
+    "text": "负责生成您实际体验到的视觉图像。"
+  },
+  {
+    "start": 30.5,
+    "end": 33.5,
+    "original_text": "If a stroke or physical trauma destroys V1,",
+    "text": "如果中风或身体创伤破坏了 V1，"
+  },
+  {
+    "start": 33.5,
+    "end": 38.5,
+    "original_text": "the result is clinical, complete blindness in that corresponding visual field.",
+    "text": "结果是相应视野的临床完全失明。"
+  },
+  {
+    "start": 38.5,
+    "end": 41.5,
+    "original_text": "The physical map of the visual scene is entirely wiped out.",
+    "text": "视觉场景的物理图被完全抹掉。"
+  },
+  {
+    "start": 41.5,
+    "end": 45.5,
+    "original_text": "The traditional scientific consensus was straightforward.",
+    "text": "传统的科学共识很简单。"
+  },
+  {
+    "start": 45.5,
+    "end": 48.5,
+    "original_text": "Without an intact V1 to generate conscious awareness,",
+    "text": "如果没有完整的 V1 来产生意识，"
+  },
+  {
+    "start": 48.5,
+    "end": 52.5,
+    "original_text": "visual navigation of the physical world is biologically impossible.",
+    "text": "物理世界的视觉导航在生物学上是不可能的。"
+  },
+  {
+    "start": 52.5,
+    "end": 56.5,
+    "original_text": "But clinical testing reveals a paradox called blind sight.",
+    "text": "但临床测试揭示了一个称为盲视的悖论。"
+  },
+  {
+    "start": 56.5,
+    "end": 62.5,
+    "original_text": "If you ask specific patients with V1 damage to navigate a cluttered hospital corridor,",
+    "text": "如果您要求患有 V1 损伤的特定患者在杂乱的医院走廊中行走，"
+  },
+  {
+    "start": 62.5,
+    "end": 65.5,
+    "original_text": "they can successfully walk around obstacles without tripping.",
+    "text": "他们可以成功地绕过障碍物而不会绊倒。"
+  },
+  {
+    "start": 65.5,
+    "end": 68.5,
+    "original_text": "Yet, if you ask these patients what they are seeing,",
+    "text": "然而，如果你问这些病人他们看到了什么，"
+  },
+  {
+    "start": 68.5,
+    "end": 71.5,
+    "original_text": "their subjective experience is entirely blank.",
+    "text": "他们的主观体验完全是空白的。"
+  },
+  {
+    "start": 71.5,
+    "end": 76.5,
+    "original_text": "They report seeing absolutely nothing but total impenetrable darkness.",
+    "text": "他们报告说除了完全无法穿透的黑暗之外什么也看不见。"
+  },
+  {
+    "start": 76.5,
+    "end": 79.5,
+    "original_text": "They can also react to sudden physical threats.",
+    "text": "他们还可以对突然的身体威胁做出反应。"
+  },
+  {
+    "start": 79.5,
+    "end": 83.5,
+    "original_text": "If you throw a tennis ball directly at them, they will instinctively flinch",
+    "text": "如果你直接向他们扔网球，他们会本能地退缩"
+  },
+  {
+    "start": 83.5,
+    "end": 85.5,
+    "original_text": "or even reach up and catch it perfectly.",
+    "text": "甚至伸手完美接住它。"
+  },
+  {
+    "start": 85.5,
+    "end": 89.5,
+    "original_text": "This anomaly aligns with historical cases like Phineas Gage.",
+    "text": "这种反常现象与菲尼亚斯·盖奇这样的历史案例是一致的。"
+  },
+  {
+    "start": 89.5,
+    "end": 93.5,
+    "original_text": "In 1848, an iron rod pierced Gage's skull",
+    "text": "1848年，一根铁棒刺穿了盖奇的头骨"
+  },
+  {
+    "start": 93.5,
+    "end": 97.5,
+    "original_text": "and destroyed much of his left frontal lobe, providing clinical proof",
+    "text": "并摧毁了他的大部分左额叶，提供了临床证据"
+  },
+  {
+    "start": 97.5,
+    "end": 101.5,
+    "original_text": "that specific brain regions dictate specific behaviors and traits.",
+    "text": "特定的大脑区域决定特定的行为和特征。"
+  },
+  {
+    "start": 101.5,
+    "end": 105.5,
+    "original_text": "Blind sight presents a similar challenge to our understanding of the brain.",
+    "text": "盲视对我们对大脑的理解提出了类似的挑战。"
+  },
+  {
+    "start": 105.5,
+    "end": 109.5,
+    "original_text": "We have to explain how the human brain is successfully calculating trajectories",
+    "text": "我们必须解释人脑如何成功计算轨迹"
+  },
+  {
+    "start": 109.5,
+    "end": 114.5,
+    "original_text": "and navigating the physical world without ever generating a conscious image.",
+    "text": "并在物理世界中导航而无需产生有意识的图像。"
+  },
+  {
+    "start": 114.5,
+    "end": 117.5,
+    "original_text": "This diagram shows the brain's main highway",
+    "text": "该图显示了大脑的主要高速公路"
+  },
+  {
+    "start": 117.5,
+    "end": 120.5,
+    "original_text": "for standard conscious visual processing.",
+    "text": "用于标准有意识的视觉处理。"
+  },
+  {
+    "start": 120.5,
+    "end": 123.5,
+    "original_text": "Light hits the retina, routes through the thalamus,",
+    "text": "光线照射到视网膜，穿过丘脑，"
+  },
+  {
+    "start": 123.5,
+    "end": 128.5,
+    "original_text": "and terminates at the primary visual cortex to create the picture in your mind.",
+    "text": "并终止于初级视觉皮层，以在您的脑海中创建图像。"
+  },
+  {
+    "start": 128.5,
+    "end": 132.5,
+    "original_text": "In a blind sight patient, this primary highway is catastrophically severed.",
+    "text": "对于盲人来说，这条主要高速公路被灾难性地切断了。"
+  },
+  {
+    "start": 133.5,
+    "end": 137.5,
+    "original_text": "The connection is broken, and conscious vision goes entirely dark.",
+    "text": "连接断开，意识视野完全变暗。"
+  },
+  {
+    "start": 137.5,
+    "end": 141.5,
+    "original_text": "But advanced neuroimaging reveals a hidden, older bypass route",
+    "text": "但先进的神经影像学揭示了一条隐藏的、古老的旁路路线"
+  },
+  {
+    "start": 141.5,
+    "end": 144.5,
+    "original_text": "that operates entirely independently of V1.",
+    "text": "完全独立于 V1 运行。"
+  },
+  {
+    "start": 144.5,
+    "end": 148.5,
+    "original_text": "This sub-cortical pathway drops below the cortex,",
+    "text": "这条皮层下通路下降到皮层以下，"
+  },
+  {
+    "start": 148.5,
+    "end": 151.5,
+    "original_text": "connecting the retina directly to the superior coliculus.",
+    "text": "将视网膜直接连接到上丘。"
+  },
+  {
+    "start": 151.5,
+    "end": 155.5,
+    "original_text": "The superior coliculus is an ancient midbrain structure,",
+    "text": "上丘是一种古老的中脑结构，"
+  },
+  {
+    "start": 155.5,
+    "end": 158.5,
+    "original_text": "responsible for directing fast, reflexive movements.",
+    "text": "负责指挥快速、反射性的动作。"
+  },
+  {
+    "start": 159.5,
+    "end": 163.5,
+    "original_text": "From there, raw visual signals are routed straight into area MT.",
+    "text": "从那里，原始视觉信号直接路由到 MT 区域。"
+  },
+  {
+    "start": 163.5,
+    "end": 167.5,
+    "original_text": "Area MT is a distinct region of the extraterrestrial cortex,",
+    "text": "MT 区域是地外皮层的一个独特区域，"
+  },
+  {
+    "start": 167.5,
+    "end": 170.5,
+    "original_text": "highly specialized for processing visual motion.",
+    "text": "高度专门用于处理视觉运动。"
+  },
+  {
+    "start": 170.5,
+    "end": 175.5,
+    "original_text": "Conscious sight and visual reflexes are two anatomically separate systems.",
+    "text": "有意识的视觉和视觉反射是两个解剖学上独立的系统。"
+  },
+  {
+    "start": 175.5,
+    "end": 178.5,
+    "original_text": "Your brain can see even when your mind is dark.",
+    "text": "即使你的头脑一片黑暗，你的大脑也能看到东西。"
+  },
+  {
+    "start": 178.5,
+    "end": 182.5,
+    "original_text": "Why would evolution maintain two completely separate visual pathways?",
+    "text": "为什么进化会维持两条完全独立的视觉通路？"
+  },
+  {
+    "start": 182.5,
+    "end": 186.5,
+    "original_text": "The answer comes down to a strict problem of computational bandwidth.",
+    "text": "答案归结为严格的计算带宽问题。"
+  },
+  {
+    "start": 186.5,
+    "end": 190.5,
+    "original_text": "This animation illustrates the volume of raw environmental data",
+    "text": "该动画说明了原始环境数据量"
+  },
+  {
+    "start": 190.5,
+    "end": 192.5,
+    "original_text": "absorbed by the human visual system.",
+    "text": "被人类视觉系统吸收。"
+  },
+  {
+    "start": 192.5,
+    "end": 196.5,
+    "original_text": "Current estimates suggest your retina transmits visual input",
+    "text": "目前的估计表明您的视网膜传输视觉输入"
+  },
+  {
+    "start": 196.5,
+    "end": 199.5,
+    "original_text": "at a rate of approximately 10 million bits every single second.",
+    "text": "以每秒大约 1000 万位的速率。"
+  },
+  {
+    "start": 199.5,
+    "end": 204.5,
+    "original_text": "But conscious cognitive processing operates under an extreme evolutionary speed limit.",
+    "text": "但有意识的认知处理是在极端的进化速度限制下进行的。"
+  },
+  {
+    "start": 204.5,
+    "end": 208.5,
+    "original_text": "Out of those millions of inputs, the conscious mind can only process",
+    "text": "在数以百万计的输入中，有意识的思维只能处理"
+  },
+  {
+    "start": 208.5,
+    "end": 211.5,
+    "original_text": "a meager 10 to 40 bits of information per second.",
+    "text": "每秒仅传输 10 至 40 位信息。"
+  },
+  {
+    "start": 212.5,
+    "end": 216.5,
+    "original_text": "That massive unconscious pathway utilizes those millions of bits.",
+    "text": "这条巨大的无意识通路利用了数百万个比特。"
+  },
+  {
+    "start": 216.5,
+    "end": 220.5,
+    "original_text": "It handles real-time motor control and split-second spatial tracking",
+    "text": "它处理实时电机控制和瞬间空间跟踪"
+  },
+  {
+    "start": 220.5,
+    "end": 222.5,
+    "original_text": "to ensure survival in complex environments.",
+    "text": "确保在复杂环境下的生存。"
+  },
+  {
+    "start": 222.5,
+    "end": 226.5,
+    "original_text": "The 10-bit conscious mind is simply too slow to keep you alive.",
+    "text": "10 位意识思维太慢了，无法让你活下去。"
+  },
+  {
+    "start": 226.5,
+    "end": 229.5,
+    "original_text": "Physical survival requires your nervous system",
+    "text": "身体生存需要你的神经系统"
+  },
+  {
+    "start": 229.5,
+    "end": 233.5,
+    "original_text": "to farm out the overwhelming complexity of reality to an unconscious supercomputer.",
+    "text": "将现实中极其复杂的事情交给一台无意识的超级计算机。"
+  },
+  {
+    "start": 233.5,
+    "end": 237.5,
+    "original_text": "If we shift from physical anatomy to the flow of time,",
+    "text": "如果我们从身体解剖学转向时间的流动，"
+  },
+  {
+    "start": 237.5,
+    "end": 239.5,
+    "original_text": "we can track exactly how this delay works,",
+    "text": "我们可以准确追踪这种延迟是如何运作的，"
+  },
+  {
+    "start": 239.5,
+    "end": 244.5,
+    "original_text": "starting from the exact millisecond physical light hits the retina.",
+    "text": "从物理光到达视网膜的精确毫秒开始。"
+  },
+  {
+    "start": 244.5,
+    "end": 249.5,
+    "original_text": "This graph maps the early pre-conscious window using high-density EEG.",
+    "text": "该图使用高密度脑电图绘制了早期前意识窗口。"
+  },
+  {
+    "start": 249.5,
+    "end": 253.5,
+    "original_text": "EEG is a recording method that measures electrical activity on the scalp",
+    "text": "脑电图是一种测量头皮电活动的记录方法"
+  },
+  {
+    "start": 253.5,
+    "end": 256.5,
+    "original_text": "to track how neurons communicate.",
+    "text": "追踪神经元如何交流。"
+  },
+  {
+    "start": 256.5,
+    "end": 259.5,
+    "original_text": "Between 170 and 240 milliseconds,",
+    "text": "170 到 240 毫秒之间，"
+  },
+  {
+    "start": 259.5,
+    "end": 263.5,
+    "original_text": "there is a distinct spike where occipital networks actively accumulate",
+    "text": "有一个明显的峰值，枕骨网络积极积累"
+  },
+  {
+    "start": 263.5,
+    "end": 267.5,
+    "original_text": "and decode raw visual data entirely in the dark.",
+    "text": "并完全在黑暗中解码原始视觉数据。"
+  },
+  {
+    "start": 267.5,
+    "end": 271.5,
+    "original_text": "During this rapid phase, the unconscious brain perfectly preserves",
+    "text": "在这个快速阶段，无意识的大脑完美地保存了"
+  },
+  {
+    "start": 271.5,
+    "end": 274.5,
+    "original_text": "the chronological sequence of high fidelity data.",
+    "text": "高保真数据的时间顺序。"
+  },
+  {
+    "start": 274.5,
+    "end": 278.5,
+    "original_text": "Every rapid flash and subtle movement is meticulously catalogued.",
+    "text": "每一个快速的闪光和微妙的动作都被仔细地记录下来。"
+  },
+  {
+    "start": 278.5,
+    "end": 282.5,
+    "original_text": "Conscious perception emerges much later in the temporal stream.",
+    "text": "意识知觉在时间流中出现得晚得多。"
+  },
+  {
+    "start": 282.5,
+    "end": 286.5,
+    "original_text": "It heavily relies on that pre-processed data to generate a unified snapshot",
+    "text": "它严重依赖预处理的数据来生成统一的快照"
+  },
+  {
+    "start": 286.5,
+    "end": 289.5,
+    "original_text": "between 400 and 600 milliseconds.",
+    "text": "400 到 600 毫秒之间。"
+  },
+  {
+    "start": 289.5,
+    "end": 293.5,
+    "original_text": "The feeling of seeing instantly is a biological illusion.",
+    "text": "瞬间看到的感觉是一种生物错觉。"
+  },
+  {
+    "start": 293.5,
+    "end": 299.5,
+    "original_text": "Conscious reality is actually a delayed, heavily edited summary of the recent past.",
+    "text": "意识现实实际上是对最近的过去的延迟的、经过大量编辑的总结。"
+  },
+  {
+    "start": 299.5,
+    "end": 305.5,
+    "original_text": "This evidence frames consciousness as a late-stage, low-bandwidth executive supervisor.",
+    "text": "这一证据将意识构建为后期、低带宽执行主管。"
+  },
+  {
+    "start": 305.5,
+    "end": 310.5,
+    "original_text": "Its evolutionary purpose is to filter out the massive deluge of sensory noise,",
+    "text": "它的进化目的是过滤掉大量的感官噪音，"
+  },
+  {
+    "start": 310.5,
+    "end": 316.5,
+    "original_text": "so the organism can focus purely on high-level anomalies and long-term planning.",
+    "text": "因此有机体可以纯粹专注于高级异常和长期规划。"
+  },
+  {
+    "start": 316.5,
+    "end": 319.5,
+    "original_text": "You exist in a dual reality.",
+    "text": "你存在于双重现实中。"
+  },
+  {
+    "start": 319.5,
+    "end": 323.5,
+    "original_text": "As you consciously focus your narrow bandwidth on a single task,",
+    "text": "当你有意识地将有限的带宽集中在一项任务上时，"
+  },
+  {
+    "start": 323.5,
+    "end": 329.5,
+    "original_text": "silent sub-cortical machinery is constantly tracking the physics of your entire surrounding environment.",
+    "text": "安静的皮层下机器不断跟踪整个周围环境的物理特性。"
+  },
+  {
+    "start": 329.5,
+    "end": 333.5,
+    "original_text": "This taxonomy maps the global neuronal workspace theory,",
+    "text": "该分类法映射了全局神经元工作空间理论，"
+  },
+  {
+    "start": 333.5,
+    "end": 337.5,
+    "original_text": "showing exactly how the brain gates this information.",
+    "text": "准确显示大脑如何门控这些信息。"
+  },
+  {
+    "start": 337.5,
+    "end": 341.5,
+    "original_text": "A stimulus only crosses the threshold into conscious broadcast",
+    "text": "刺激只会跨越进入有意识广播的门槛"
+  },
+  {
+    "start": 341.5,
+    "end": 346.5,
+    "original_text": "when it has sufficient physical strength and receives focused top-down attention.",
+    "text": "当它有足够的体力并受到自上而下的集中关注时。"
+  },
+  {
+    "start": 346.5,
+    "end": 349.5,
+    "original_text": "Otherwise, it remains entirely subliminal.",
+    "text": "否则，它仍然完全是潜意识的。"
+  },
+  {
+    "start": 349.5,
+    "end": 354.5,
+    "original_text": "An ancient high-speed visual system is constantly operating in the background,",
+    "text": "一个古老的高速视觉系统在后台不断运转，"
+  },
+  {
+    "start": 354.5,
+    "end": 358.5,
+    "original_text": "keeping you alive, and you are completely blind to it.",
+    "text": "让你活下去，而你却对此完全视而不见。"
+  },
+  {
+    "start": 358.5,
+    "end": 361.5,
+    "original_text": "You are always seeing more than you know.",
+    "text": "你看到的总是比你知道的更多。"
+  }
+]
