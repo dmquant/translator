@@ -18,21 +18,28 @@ def main():
             print(f"ERROR: Video file not found at {video_file}")
             sys.exit(1)
 
+        # Output directory
+        output_dir = "working_data"
+        os.makedirs(output_dir, exist_ok=True)
+        
+        base_name = os.path.basename(video_file)
+        name_no_ext = os.path.splitext(base_name)[0]
+        
+        # 1. Run Whisper (save to working_data)
         print(f"Running Whisper on {video_file}...")
         try:
-            subprocess.run(["whisper", video_file, "--model", "base", "--output_format", "json", "--output_dir", "."], check=True, capture_output=True, text=True)
+            # Whisper saves with the same name as the input file
+            subprocess.run(["whisper", video_file, "--model", "base", "--output_format", "json", "--output_dir", output_dir], check=True, capture_output=True, text=True)
         except subprocess.CalledProcessError as e:
             print(f"ERROR: Whisper failed: {e.stderr}")
             sys.exit(1)
         
-        base_name = os.path.basename(video_file)
-        json_file = os.path.splitext(base_name)[0] + ".json"
-        
-        if not os.path.exists(json_file):
-            print(f"ERROR: Whisper output {json_file} not found")
+        whisper_json = os.path.join(output_dir, name_no_ext + ".json")
+        if not os.path.exists(whisper_json):
+            print(f"ERROR: Whisper output {whisper_json} not found")
             sys.exit(1)
             
-        with open(json_file, "r", encoding="utf-8") as f:
+        with open(whisper_json, "r", encoding="utf-8") as f:
             data = json.load(f)
             
         segments = data.get("segments", [])
@@ -53,27 +60,21 @@ def main():
             original_text = seg.get("text", "").strip()
             start = seg.get("start", 0)
             end = seg.get("end", 0)
-            
             if not original_text:
                 continue
-                
             try:
                 translated_text = translator.translate(original_text)
-                if not translated_text:
-                    raise Exception("Empty translation result")
+                if not translated_text: raise Exception("Empty translation")
             except Exception as e:
-                print(f"WARNING: Translation failed for segment {i}: {e}")
-                # For critical errors, we could sys.exit, but here we fallback to original
-                translated_text = original_text 
-                
+                print(f"WARNING: Segment {i} translation failed: {e}")
+                translated_text = original_text
             result_segments.append({
-                "start": start,
-                "end": end,
-                "original_text": original_text,
-                "text": translated_text
+                "start": start, "end": end,
+                "original_text": original_text, "text": translated_text
             })
             
-        output_json = os.path.splitext(base_name)[0] + f"_translated_{target_lang}.json"
+        # Final output path
+        output_json = os.path.join(output_dir, f"{name_no_ext}_translated_{target_lang}.json")
         with open(output_json, "w", encoding="utf-8") as f:
             json.dump(result_segments, f, ensure_ascii=False, indent=2)
             
