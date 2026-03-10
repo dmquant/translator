@@ -13,6 +13,9 @@ remotion/node_modules
 remotion/public/vos
 remotion/public/vos_fixed
 remotion/public/original.mp4
+# Exclude the chrome headless shell and other large binaries
+remotion/node_modules/.remotion/
+.remotion/
 
 # App Data
 working_data/
@@ -29,3 +32,10 @@ __pycache__/
 !next-env.d.ts
 
 .DS_Store
+# Large files
+*.mp4
+*.mp3
+*.wav
+*.zip
+*.tar.gz
+*.pack
