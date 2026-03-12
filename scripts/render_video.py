@@ -95,10 +95,10 @@ def main():
         sys.stdout.flush()
         abs_output = os.path.abspath(output_video)
         
-        # Optimization: 2x concurrency and high-quality FFmpeg settings
+        # Optimization: 1x concurrency and high-quality FFmpeg settings
         render_cmd = [
             "npx", "remotion", "render", "Main", abs_output, 
-            "--concurrency=2",
+            "--concurrency=1",
             "--codec=h264",
             "--crf=16", 
             "--preset=slow",

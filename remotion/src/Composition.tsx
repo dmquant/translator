@@ -23,6 +23,11 @@ const Caption: React.FC<{ text: string; start: number; end: number }> = ({ text,
 		return null;
 	}
 
+	const cleanText = text
+		.trim()
+		.replace(/[。]$/, '') // Remove trailing period
+		.replace(/[，。]/g, ' '); // Replace middle punctuation with space
+
 	return (
 		<div
 			style={{
@@ -40,7 +45,7 @@ const Caption: React.FC<{ text: string; start: number; end: number }> = ({ text,
 			}}
 		>
 			<span style={{ backgroundColor: 'rgba(0,0,0,0.5)', padding: '4px 12px', borderRadius: '8px' }}>
-				{text}
+				{cleanText}
 			</span>
 		</div>
 	);
