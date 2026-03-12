@@ -91,12 +91,21 @@ def main():
         with open(os.path.join(remotion_dir, "src", "config.json"), "w", encoding="utf-8") as f:
             json.dump(config_data, f, ensure_ascii=False, indent=2)
             
-        print("PROGRESS: Starting Remotion render engine (60fps)...")
+        print("PROGRESS: Starting Remotion render engine (60fps, 2x concurrency, High Quality)...")
         sys.stdout.flush()
         abs_output = os.path.abspath(output_video)
         
-        # We can use Popen to stream Remotion's own progress output if we wanted more detail
-        result = subprocess.run(["npx", "remotion", "render", "Main", abs_output, "-y"], cwd=remotion_dir, capture_output=True, text=True)
+        # Optimization: 2x concurrency and high-quality FFmpeg settings
+        render_cmd = [
+            "npx", "remotion", "render", "Main", abs_output, 
+            "--concurrency=2",
+            "--codec=h264",
+            "--crf=16", 
+            "--preset=slow",
+            "-y"
+        ]
+        
+        result = subprocess.run(render_cmd, cwd=remotion_dir, capture_output=True, text=True)
         
         if result.returncode == 0:
             print("DONE_VIDEO_FILE:" + abs_output)
