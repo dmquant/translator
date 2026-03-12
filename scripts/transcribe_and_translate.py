@@ -13,6 +13,59 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 from google import genai
 
+def resegment_to_sentences(whisper_data):
+    """
+    Groups whisper words into complete sentences based on punctuation.
+    """
+    all_words = []
+    for seg in whisper_data.get('segments', []):
+        if 'words' in seg:
+            all_words.extend(seg['words'])
+        else:
+            # Fallback: approximation if word_timestamps failed
+            words = seg['text'].strip().split()
+            if not words: continue
+            duration = seg['end'] - seg['start']
+            word_dur = duration / len(words)
+            for i, w in enumerate(words):
+                all_words.append({
+                    "word": w,
+                    "start": seg['start'] + i * word_dur,
+                    "end": seg['start'] + (i + 1) * word_dur
+                })
+    
+    if not all_words: return []
+    
+    new_segments = []
+    curr_words = []
+    
+    # Sentence ending patterns
+    sentence_ends = re.compile(r'.*[.!?;。！？；]$')
+    
+    for i, w_obj in enumerate(all_words):
+        curr_words.append(w_obj)
+        word_text = w_obj['word'].strip()
+        
+        # Condition to close a segment: 
+        # 1. Punctuation at end of word
+        # 2. Or it's been a long time (max 12 seconds per segment)
+        # 3. Or it's the very last word
+        duration_so_far = w_obj['end'] - curr_words[0]['start']
+        
+        if sentence_ends.match(word_text) or duration_so_far > 12.0 or i == len(all_words) - 1:
+            start_t = curr_words[0]['start']
+            end_t = curr_words[-1]['end']
+            text = " ".join([x['word'].strip() for x in curr_words])
+            
+            # Clean up double spaces if any
+            text = re.sub(r'\s+', ' ', text)
+            
+            if text:
+                new_segments.append({"start": start_t, "end": end_t, "text": text})
+            curr_words = []
+            
+    return new_segments
+
 def segments_to_srt(segments):
     srt = ""
     for i, seg in enumerate(segments):
@@ -33,14 +86,12 @@ def segments_to_srt(segments):
     return srt
 
 def parse_srt(srt_text):
-    # Very robust regex to find SRT blocks
     pattern = re.compile(r'(\d+)\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})\n(.*?)(?=\n\n\d+|\Z)', re.DOTALL)
     matches = pattern.findall(srt_text)
     
     segments = []
     for m in matches:
         index, start_str, end_match, text = m
-        
         def srt_time_to_seconds(s):
             h, m, s_part = s.split(':')
             sec, ms = s_part.split(',')
@@ -60,10 +111,10 @@ def translate_srt_with_gemini(srt_content, target_lang, api_key):
     prompt = f"""You are a professional video translator. 
 Translate the following SRT subtitles into {target_lang}.
 STRICT RULES:
-1. Keep the SRT format EXACTLY as provided (index, timestamps, and text structure).
+1. Keep the SRT format EXACTLY as provided (index, timestamps).
 2. ONLY return the translated SRT content. No explanations, no preamble.
 3. Preserve technical terms correctly.
-4. Ensure the translation is natural and fits the context of the entire video.
+4. Ensure each segment is a natural, readable sentence in {target_lang}.
 
 SRT CONTENT:
 {srt_content}
@@ -75,24 +126,19 @@ SRT CONTENT:
                 model='gemini-3.1-flash-lite-preview', 
                 contents=prompt
             )
-            # Safely extract text parts only to avoid SDK warnings about thought_signature
             full_text = ""
             if response.candidates and response.candidates[0].content.parts:
                 for part in response.candidates[0].content.parts:
-                    if part.text:
-                        full_text += part.text
-            
-            if not full_text:
-                raise Exception("No text returned in response")
-                
+                    if part.text: full_text += part.text
+            if not full_text: raise Exception("Empty response")
             return full_text.strip()
         except Exception as e:
             if "503" in str(e) and attempt < max_retries - 1:
                 wait_time = (attempt + 1) * 5
-                print(f"LOG: Gemini busy (503), retrying SRT translation in {wait_time}s...\n")
+                print(f"LOG: Gemini busy (503), retrying in {wait_time}s...\n")
                 time.sleep(wait_time)
                 continue
-            print(f"LOG: Gemini SRT translation failed: {e}\n")
+            print(f"LOG: Gemini translation failed: {e}\n")
             return None
 
 def main():
@@ -115,34 +161,27 @@ def main():
         base_name = os.path.basename(video_file)
         name_no_ext = os.path.splitext(base_name)[0]
         
-        print(f"DATA:PROGRESS: Starting Whisper transcription for {base_name}...\n")
+        print(f"DATA:PROGRESS: Starting Whisper transcription (with word timestamps) for {base_name}...\n")
         sys.stdout.flush()
         
         try:
-            # Whisper execution
-            subprocess.run(["whisper", video_file, "--model", "base", "--output_format", "json", "--output_dir", output_dir], check=True, capture_output=True, text=True)
+            # Added --word_timestamps True for better re-segmentation
+            subprocess.run(["whisper", video_file, "--model", "base", "--word_timestamps", "True", "--output_format", "json", "--output_dir", output_dir], check=True, capture_output=True, text=True)
         except subprocess.CalledProcessError as e:
-            # Handle the "no text to recognize" or other errors
-            if "no text to recognize" in e.stderr.lower() or "no text to recognize" in e.stdout.lower():
-                print("ERROR: No speech detected in this video file.")
-            else:
-                print(f"ERROR: Whisper failed: {e.stderr}")
+            print(f"ERROR: Whisper failed: {e.stderr}")
             sys.exit(1)
         
         whisper_json = os.path.join(output_dir, name_no_ext + ".json")
-        if not os.path.exists(whisper_json):
-            print(f"ERROR: Whisper output {whisper_json} not found")
-            sys.exit(1)
-            
         with open(whisper_json, "r", encoding="utf-8") as f:
-            data = json.load(f)
+            whisper_data = json.load(f)
             
-        segments = data.get("segments", [])
+        # Optimization: Resegment into sentences before translation
+        segments = resegment_to_sentences(whisper_data)
         if not segments:
-            print("ERROR: No speech segments were extracted from the video.")
+            print("ERROR: No speech segments detected")
             sys.exit(1)
 
-        print(f"DATA:PROGRESS: Transcribed {len(segments)} segments. Translating using {engine}...\n")
+        print(f"DATA:PROGRESS: Grouped into {len(segments)} logical sentences. Translating using {engine}...\n")
         sys.stdout.flush()
 
         result_segments = []
@@ -153,49 +192,33 @@ def main():
                 print("ERROR: GEMINI_API_KEY not set")
                 sys.exit(1)
             
-            # Context-aware SRT translation
             srt_input = segments_to_srt(segments)
-            print("DATA:PROGRESS: Sending entire SRT to Gemini for context-aware translation...\n")
-            sys.stdout.flush()
-            
             translated_srt = translate_srt_with_gemini(srt_input, target_lang, gemini_api_key)
             
             if translated_srt:
                 try:
-                    # Clean up markdown code blocks if Gemini included them
-                    translated_srt = re.sub(r'^```srt\n', '', translated_srt)
-                    translated_srt = re.sub(r'^```\n', '', translated_srt)
+                    translated_srt = re.sub(r'^```(srt)?\n', '', translated_srt)
                     translated_srt = re.sub(r'\n```$', '', translated_srt)
-                    
                     parsed_segments = parse_srt(translated_srt)
-                    if len(parsed_segments) > 0:
-                        # We try to align indices if lengths mismatch, but usually they match
-                        # For safety, if they mismatch, we fallback to original timing
-                        for i, orig in enumerate(segments):
-                            text = orig['text']
-                            if i < len(parsed_segments):
-                                text = parsed_segments[i]['text']
-                            
-                            result_segments.append({
-                                "start": orig['start'],
-                                "end": orig['end'],
-                                "original_text": orig['text'],
-                                "text": text
-                            })
-                    else:
-                        raise Exception("Failed to parse translated SRT")
+                    
+                    for i, orig in enumerate(segments):
+                        text = orig['text']
+                        if i < len(parsed_segments):
+                            text = parsed_segments[i]['text']
+                        result_segments.append({
+                            "start": orig['start'], "end": orig['end'],
+                            "original_text": orig['text'], "text": text
+                        })
                 except Exception as e:
-                    print(f"LOG: SRT Parsing failed: {e}. Falling back to segment-by-segment.\n")
-                    # Fallback logic would go here if needed, or just fail
+                    print(f"ERROR: SRT Parsing failed: {e}")
                     sys.exit(1)
             else:
-                print("ERROR: Gemini failed to translate SRT content.")
+                print("ERROR: Gemini translation failed")
                 sys.exit(1)
         else:
-            # Standard Google segment-by-segment (for legacy/fallback)
             translator = GoogleTranslator(source='auto', target=target_lang)
             for i, seg in enumerate(segments):
-                print(f"DATA:PROGRESS: Translating segment {i+1}/{len(segments)}...\n")
+                print(f"DATA:PROGRESS: Translating sentence {i+1}/{len(segments)}...\n")
                 sys.stdout.flush()
                 try:
                     translated = translator.translate(seg['text'])
