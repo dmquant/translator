@@ -75,7 +75,17 @@ SRT CONTENT:
                 model='gemini-3.1-flash-lite-preview', 
                 contents=prompt
             )
-            return response.text.strip()
+            # Safely extract text parts only to avoid SDK warnings about thought_signature
+            full_text = ""
+            if response.candidates and response.candidates[0].content.parts:
+                for part in response.candidates[0].content.parts:
+                    if part.text:
+                        full_text += part.text
+            
+            if not full_text:
+                raise Exception("No text returned in response")
+                
+            return full_text.strip()
         except Exception as e:
             if "503" in str(e) and attempt < max_retries - 1:
                 wait_time = (attempt + 1) * 5
