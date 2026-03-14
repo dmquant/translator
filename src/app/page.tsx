@@ -1,21 +1,39 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 
 export default function Home() {
-  const [file, setFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState('');
   const [targetLang, setTargetLang] = useState('zh-CN');
   const [engine, setEngine] = useState('google');
   const [status, setStatus] = useState<'idle' | 'processing' | 'selecting_voice' | 'rendering' | 'done' | 'error'>('idle');
   const [logs, setLogs] = useState<string>('');
-  
+
   const [videoFile, setVideoFile] = useState('');
   const [jsonFile, setJsonFile] = useState('');
   const [voices, setVoices] = useState<any[]>([]);
   const [selectedVoice, setSelectedVoice] = useState('');
   const [sampleAudio, setSampleAudio] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [outputUrl, setOutputUrl] = useState('');
+
+  const fileInputCallbackRef = useCallback((node: HTMLInputElement | null) => {
+    // Cleanup old listener
+    if (fileInputRef.current) {
+      fileInputRef.current.removeEventListener('change', handleFileChange);
+    }
+    fileInputRef.current = node;
+    // Attach listener to new node
+    if (node) {
+      node.addEventListener('change', handleFileChange);
+    }
+  }, []);
+
+  function handleFileChange(this: HTMLInputElement) {
+    const f = this.files?.[0];
+    setFileName(f ? f.name : '');
+  }
 
   const languages = [
     { code: 'zh-CN', label: 'Mandarin (Chinese)' },
@@ -57,10 +75,11 @@ export default function Home() {
   };
 
   const handleUpload = async () => {
+    const file = fileInputRef.current?.files?.[0];
     if (!file) return;
     setStatus('processing');
     setLogs('');
-    
+
     const formData = new FormData();
     formData.append('video', file);
     formData.append('lang', targetLang);
@@ -101,11 +120,15 @@ export default function Home() {
     setStatus('rendering');
     setLogs('');
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10 * 60 * 1000); // 10 min timeout
       const res = await fetch('/api/convert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoFile, jsonFile, voice: selectedVoice })
+        body: JSON.stringify({ videoFile, jsonFile, voice: selectedVoice }),
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
       if (!res.ok) throw new Error('Render request failed');
       
       const fullOutput = await readStream(res, (data) => {
@@ -145,18 +168,18 @@ export default function Home() {
   };
 
   return (
-    <main className="container">
-      <header className="header">
-        <h1>Cinematic Translator</h1>
-        <p>AI-Powered Video Dubbing & Globalization</p>
+    <main className="container" style={{ maxWidth: 800, margin: '0 auto', padding: '40px 20px' }}>
+      <header className="header" style={{ textAlign: 'center', marginBottom: 40 }}>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: 10 }}>Cinematic Translator</h1>
+        <p style={{ color: '#94a3b8' }}>AI-Powered Video Dubbing & Globalization</p>
       </header>
 
-      <div className="card">
+      <div className="card" style={{ background: '#1e293b', borderRadius: 12, padding: 30, border: '1px solid #334155' }}>
         {(status === 'idle' || status === 'error') && (
           <div className="upload-section">
             <div className="form-group">
               <label>1. Select Video</label>
-              <input type="file" accept="video/*" onChange={e => setFile(e.target.files?.[0] || null)} />
+              <input ref={fileInputCallbackRef} type="file" accept="video/*" />
             </div>
             <div className="form-group">
               <label>2. Target Language</label>
@@ -171,7 +194,26 @@ export default function Home() {
                 <option value="gemini">Gemini 3.1 Flash Lite</option>
               </select>
             </div>
-            <button className="primary-btn" onClick={handleUpload} disabled={!file}>Start Processing</button>
+            <button
+              className="primary-btn"
+              onClick={handleUpload}
+              disabled={!fileName}
+              style={{
+                background: fileName ? '#3b82f6' : '#475569',
+                color: 'white',
+                width: '100%',
+                padding: '12px 24px',
+                borderRadius: 8,
+                border: 'none',
+                fontSize: '1rem',
+                fontWeight: 600,
+                cursor: fileName ? 'pointer' : 'not-allowed',
+                opacity: fileName ? 1 : 0.5,
+                marginTop: 10,
+              }}
+            >
+              {fileName ? 'Start Processing' : 'Select a video file first'}
+            </button>
           </div>
         )}
 
@@ -198,7 +240,7 @@ export default function Home() {
             <div className="button-group" style={{ flexDirection: 'column' }}>
               <a href={outputUrl} download="Translated_Video.mp4" className="primary-btn download-btn">Download Video</a>
               <a href="http://localhost:3001" target="_blank" rel="noreferrer" className="secondary-btn download-btn">Open in Editor (Remotion Studio)</a>
-              <button className="secondary-btn" onClick={() => { setStatus('idle'); setFile(null); setOutputUrl(''); setLogs(''); }}>Start Over</button>
+              <button className="secondary-btn" onClick={() => { setStatus('idle'); setFileName(''); setOutputUrl(''); setLogs(''); if (fileInputRef.current) fileInputRef.current.value = ''; }}>Start Over</button>
             </div>
           </div>
         )}

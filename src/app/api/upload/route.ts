@@ -3,6 +3,9 @@ import { spawn } from 'child_process';
 import path from 'path';
 import { promises as fs } from 'fs';
 
+// Allow up to 10 minutes for long transcription jobs
+export const maxDuration = 600;
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
@@ -28,19 +31,34 @@ export async function POST(req: NextRequest) {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       start(controller) {
+        let closed = false;
+
+        const safeEnqueue = (chunk: Uint8Array) => {
+          if (!closed) {
+            controller.enqueue(chunk);
+          }
+        };
+
+        const safeClose = () => {
+          if (!closed) {
+            closed = true;
+            controller.close();
+          }
+        };
+
         pyProcess.stdout.on('data', (data) => {
-          controller.enqueue(encoder.encode(`DATA:${data.toString()}`));
+          safeEnqueue(encoder.encode(`DATA:${data.toString()}`));
         });
         pyProcess.stderr.on('data', (data) => {
-          controller.enqueue(encoder.encode(`LOG:${data.toString()}`));
+          safeEnqueue(encoder.encode(`LOG:${data.toString()}`));
         });
         pyProcess.on('close', (code) => {
           if (code === 0) {
-            controller.enqueue(encoder.encode('CLOSE:0'));
+            safeEnqueue(encoder.encode('CLOSE:0'));
           } else {
-            controller.enqueue(encoder.encode(`ERROR:Process exited with code ${code}`));
+            safeEnqueue(encoder.encode(`ERROR:Process exited with code ${code}`));
           }
-          controller.close();
+          safeClose();
         });
       }
     });
