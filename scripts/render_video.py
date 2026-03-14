@@ -3,6 +3,7 @@ import json
 import subprocess
 import os
 import math
+import time
 import traceback
 
 def get_duration(file_path):
@@ -43,9 +44,18 @@ def main():
             filename = os.path.join(vos_dir, f"s{i}.mp3")
             print(f"PROGRESS: TTS generation {i+1}/{total}...")
             sys.stdout.flush()
-            res = subprocess.run(["edge-tts", "--voice", voice, "--text", text, "--write-media", filename], capture_output=True, text=True)
-            if res.returncode != 0:
-                print(f"ERROR: edge-tts failed for segment {i}")
+            max_retries = 3
+            for attempt in range(max_retries):
+                res = subprocess.run(["edge-tts", "--voice", voice, "--text", text, "--write-media", filename], capture_output=True, text=True)
+                if res.returncode == 0:
+                    break
+                if attempt < max_retries - 1:
+                    wait_time = (attempt + 1) * 2
+                    print(f"PROGRESS: TTS segment {i} failed, retrying in {wait_time}s... ({attempt+1}/{max_retries})")
+                    sys.stdout.flush()
+                    time.sleep(wait_time)
+            else:
+                print(f"ERROR: edge-tts failed for segment {i} after {max_retries} attempts")
                 sys.exit(1)
             
         print("PROGRESS: Optimizing audio alignment and speed...")
