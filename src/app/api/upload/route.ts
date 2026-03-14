@@ -3,6 +3,9 @@ import { spawn } from 'child_process';
 import path from 'path';
 import { promises as fs } from 'fs';
 
+// Allow up to 10 minutes for long transcription jobs
+export const maxDuration = 600;
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();

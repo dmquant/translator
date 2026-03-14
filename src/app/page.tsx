@@ -101,11 +101,15 @@ export default function Home() {
     setStatus('rendering');
     setLogs('');
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10 * 60 * 1000); // 10 min timeout
       const res = await fetch('/api/convert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoFile, jsonFile, voice: selectedVoice })
+        body: JSON.stringify({ videoFile, jsonFile, voice: selectedVoice }),
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
       if (!res.ok) throw new Error('Render request failed');
       
       const fullOutput = await readStream(res, (data) => {

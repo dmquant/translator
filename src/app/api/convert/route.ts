@@ -2,6 +2,9 @@ import { NextRequest } from 'next/server';
 import { spawn } from 'child_process';
 import path from 'path';
 
+// Allow up to 10 minutes for long renders
+export const maxDuration = 600;
+
 export async function POST(req: NextRequest) {
   try {
     const { videoFile, jsonFile, voice } = await req.json();

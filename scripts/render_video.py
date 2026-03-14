@@ -91,27 +91,75 @@ def main():
         with open(os.path.join(remotion_dir, "src", "config.json"), "w", encoding="utf-8") as f:
             json.dump(config_data, f, ensure_ascii=False, indent=2)
             
-        print("PROGRESS: Starting Remotion render engine (60fps, 2x concurrency, High Quality)...")
+        print("PROGRESS: Starting Remotion render engine (60fps, 1x concurrency, High Quality)...")
         sys.stdout.flush()
         abs_output = os.path.abspath(output_video)
-        
-        # Optimization: 1x concurrency and high-quality FFmpeg settings
+
         render_cmd = [
-            "npx", "remotion", "render", "Main", abs_output, 
+            "npx", "remotion", "render", "Main", abs_output,
             "--concurrency=1",
             "--codec=h264",
-            "--crf=16", 
+            "--crf=16",
             "--preset=slow",
             "-y"
         ]
-        
-        result = subprocess.run(render_cmd, cwd=remotion_dir, capture_output=True, text=True)
-        
-        if result.returncode == 0:
+
+        # Use Popen to stream output and keep the connection alive
+        proc = subprocess.Popen(
+            render_cmd, cwd=remotion_dir,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        )
+
+        import select
+        import time
+        last_heartbeat = time.time()
+
+        while True:
+            # Check if process has finished
+            retcode = proc.poll()
+
+            # Read any available stdout/stderr
+            ready_r, _, _ = select.select(
+                [proc.stdout, proc.stderr], [], [], 5.0
+            )
+
+            for stream in ready_r:
+                line = stream.readline()
+                if line:
+                    line = line.strip()
+                    if stream == proc.stdout:
+                        print(f"PROGRESS: [Remotion] {line}")
+                    else:
+                        print(f"PROGRESS: [Remotion] {line}")
+                    sys.stdout.flush()
+                    last_heartbeat = time.time()
+
+            # Send heartbeat if no output for 10 seconds
+            now = time.time()
+            if now - last_heartbeat > 10:
+                print("PROGRESS: Rendering...")
+                sys.stdout.flush()
+                last_heartbeat = now
+
+            if retcode is not None:
+                # Process finished, drain remaining output
+                for line in proc.stdout:
+                    line = line.strip()
+                    if line:
+                        print(f"PROGRESS: [Remotion] {line}")
+                        sys.stdout.flush()
+                for line in proc.stderr:
+                    line = line.strip()
+                    if line:
+                        print(f"PROGRESS: [Remotion] {line}")
+                        sys.stdout.flush()
+                break
+
+        if proc.returncode == 0:
             print("DONE_VIDEO_FILE:" + abs_output)
             sys.stdout.flush()
         else:
-            print(f"ERROR: Remotion render failed: {result.stderr}")
+            print(f"ERROR: Remotion render failed with code {proc.returncode}")
             sys.stdout.flush()
             sys.exit(1)
 
