@@ -145,13 +145,13 @@ export default function Home() {
   };
 
   return (
-    <main className="container">
-      <header className="header">
-        <h1>Cinematic Translator</h1>
-        <p>AI-Powered Video Dubbing & Globalization</p>
+    <main className="container" style={{ maxWidth: 800, margin: '0 auto', padding: '40px 20px' }}>
+      <header className="header" style={{ textAlign: 'center', marginBottom: 40 }}>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: 10 }}>Cinematic Translator</h1>
+        <p style={{ color: '#94a3b8' }}>AI-Powered Video Dubbing & Globalization</p>
       </header>
 
-      <div className="card">
+      <div className="card" style={{ background: '#1e293b', borderRadius: 12, padding: 30, border: '1px solid #334155' }}>
         {(status === 'idle' || status === 'error') && (
           <div className="upload-section">
             <div className="form-group">
@@ -171,7 +171,26 @@ export default function Home() {
                 <option value="gemini">Gemini 3.1 Flash Lite</option>
               </select>
             </div>
-            <button className="primary-btn" onClick={handleUpload} disabled={!file}>Start Processing</button>
+            <button
+              className="primary-btn"
+              onClick={handleUpload}
+              disabled={!file}
+              style={{
+                background: file ? '#3b82f6' : '#475569',
+                color: 'white',
+                width: '100%',
+                padding: '12px 24px',
+                borderRadius: 8,
+                border: 'none',
+                fontSize: '1rem',
+                fontWeight: 600,
+                cursor: file ? 'pointer' : 'not-allowed',
+                opacity: file ? 1 : 0.5,
+                marginTop: 10,
+              }}
+            >
+              {file ? 'Start Processing' : 'Select a video file first'}
+            </button>
           </div>
         )}
 
