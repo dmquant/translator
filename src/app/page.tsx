@@ -254,7 +254,7 @@ export default function Home() {
               type="file"
               accept="video/*"
               onChange={e => setFile(e.target.files?.[0] || null)}
-              hidden
+              style={{ display: 'none' }}
             />
             {file ? (
               <div className="file-info">
