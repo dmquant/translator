@@ -1,30 +1,62 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
+
+const languages = [
+  { code: 'zh-CN', label: 'Mandarin Chinese', flag: '🇨🇳' },
+  { code: 'es', label: 'Spanish', flag: '🇪🇸' },
+  { code: 'fr', label: 'French', flag: '🇫🇷' },
+  { code: 'de', label: 'German', flag: '🇩🇪' },
+  { code: 'ja', label: 'Japanese', flag: '🇯🇵' },
+  { code: 'ko', label: 'Korean', flag: '🇰🇷' },
+];
+
+const engines = [
+  { value: 'google', label: 'Google Translate', desc: 'Fast & reliable' },
+  { value: 'gemini', label: 'Gemini Flash', desc: 'AI-powered quality' },
+];
+
+type Status = 'idle' | 'processing' | 'selecting_voice' | 'rendering' | 'done' | 'error';
+
+const steps = [
+  { key: 'upload', label: 'Upload' },
+  { key: 'transcribe', label: 'Transcribe & Translate' },
+  { key: 'voice', label: 'Select Voice' },
+  { key: 'render', label: 'Render' },
+  { key: 'done', label: 'Done' },
+];
+
+function getStepIndex(status: Status): number {
+  switch (status) {
+    case 'idle': case 'error': return 0;
+    case 'processing': return 1;
+    case 'selecting_voice': return 2;
+    case 'rendering': return 3;
+    case 'done': return 4;
+    default: return 0;
+  }
+}
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [targetLang, setTargetLang] = useState('zh-CN');
   const [engine, setEngine] = useState('google');
-  const [status, setStatus] = useState<'idle' | 'processing' | 'selecting_voice' | 'rendering' | 'done' | 'error'>('idle');
+  const [status, setStatus] = useState<Status>('idle');
   const [logs, setLogs] = useState<string>('');
-  
+  const [dragOver, setDragOver] = useState(false);
+
   const [videoFile, setVideoFile] = useState('');
   const [jsonFile, setJsonFile] = useState('');
   const [voices, setVoices] = useState<any[]>([]);
   const [selectedVoice, setSelectedVoice] = useState('');
   const [sampleAudio, setSampleAudio] = useState<string | null>(null);
+  const [playingVoice, setPlayingVoice] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [outputUrl, setOutputUrl] = useState('');
+  const logsEndRef = useRef<HTMLDivElement>(null);
 
-  const languages = [
-    { code: 'zh-CN', label: 'Mandarin (Chinese)' },
-    { code: 'es', label: 'Spanish' },
-    { code: 'fr', label: 'French' },
-    { code: 'de', label: 'German' },
-    { code: 'ja', label: 'Japanese' },
-    { code: 'ko', label: 'Korean' }
-  ];
+  const currentStep = getStepIndex(status);
 
   const readStream = async (response: Response, onData: (data: string) => void) => {
     const reader = response.body?.getReader();
@@ -60,7 +92,7 @@ export default function Home() {
     if (!file) return;
     setStatus('processing');
     setLogs('');
-    
+
     const formData = new FormData();
     formData.append('video', file);
     formData.append('lang', targetLang);
@@ -69,27 +101,27 @@ export default function Home() {
     try {
       const res = await fetch('/api/upload', { method: 'POST', body: formData });
       if (!res.ok) throw new Error('Upload failed');
-      
+
       const fullOutput = await readStream(res, (data) => {
         setLogs(prev => prev + data);
       });
 
       const jsonMatch = fullOutput.match(/DONE_JSON_FILE:(.*)/);
       const videoMatch = fullOutput.match(/DONE_VIDEO_FILE:(.*)/);
-      
+
       if (jsonMatch && videoMatch) {
         setJsonFile(jsonMatch[1].trim());
         setVideoFile(videoMatch[1].trim());
       } else {
         throw new Error('Failed to capture processed file paths');
       }
-      
+
       const langPrefix = targetLang.split('-')[0];
       const voiceRes = await fetch(`/api/voices?lang=${langPrefix}`);
       const voiceData = await voiceRes.json();
       setVoices(voiceData.voices || []);
       if (voiceData.voices?.length > 0) setSelectedVoice(voiceData.voices[0].Name);
-      
+
       setStatus('selecting_voice');
     } catch (err: any) {
       setStatus('error');
@@ -102,7 +134,7 @@ export default function Home() {
     setLogs('');
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 10 * 60 * 1000); // 10 min timeout
+      const timeout = setTimeout(() => controller.abort(), 10 * 60 * 1000);
       const res = await fetch('/api/convert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -111,14 +143,13 @@ export default function Home() {
       });
       clearTimeout(timeout);
       if (!res.ok) throw new Error('Render request failed');
-      
+
       const fullOutput = await readStream(res, (data) => {
         setLogs(prev => prev + data);
       });
 
       const videoMatch = fullOutput.match(/DONE_VIDEO_FILE:(.*)/);
       if (videoMatch) {
-        // Derive public URL from absolute path
         const absPath = videoMatch[1].trim();
         const filename = absPath.split('/').pop();
         setOutputUrl('/rendered/' + filename);
@@ -132,107 +163,246 @@ export default function Home() {
     }
   };
 
-  const playSample = async () => {
-    if (!selectedVoice) return;
+  const playSample = async (voiceName: string) => {
+    setPlayingVoice(voiceName);
     try {
       const res = await fetch('/api/sample', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ voice: selectedVoice })
+        body: JSON.stringify({ voice: voiceName }),
       });
       const data = await res.json();
       if (data.url) {
         setSampleAudio(data.url);
-        setTimeout(() => audioRef.current?.play(), 100);
+        setTimeout(() => {
+          audioRef.current?.play();
+          if (audioRef.current) {
+            audioRef.current.onended = () => setPlayingVoice(null);
+          }
+        }, 100);
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      setPlayingVoice(null);
+    }
+  };
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const droppedFile = e.dataTransfer.files[0];
+    if (droppedFile?.type.startsWith('video/')) setFile(droppedFile);
+  }, []);
+
+  const handleStartOver = () => {
+    setStatus('idle');
+    setFile(null);
+    setOutputUrl('');
+    setLogs('');
+    setVoices([]);
+    setSelectedVoice('');
+    setSampleAudio(null);
   };
 
   return (
-    <main className="container" style={{ maxWidth: 800, margin: '0 auto', padding: '40px 20px' }}>
-      <header className="header" style={{ textAlign: 'center', marginBottom: 40 }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: 10 }}>Cinematic Translator</h1>
-        <p style={{ color: '#94a3b8' }}>AI-Powered Video Dubbing & Globalization</p>
+    <main className="container">
+      {/* Header */}
+      <header className="header">
+        <div className="logo-icon">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <rect width="40" height="40" rx="10" fill="url(#grad)" />
+            <path d="M12 14h16M12 20h10M12 26h14" stroke="white" strokeWidth="2" strokeLinecap="round" />
+            <path d="M28 22l4 4-4 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <defs><linearGradient id="grad" x1="0" y1="0" x2="40" y2="40"><stop stopColor="#3b82f6"/><stop offset="1" stopColor="#8b5cf6"/></linearGradient></defs>
+          </svg>
+        </div>
+        <h1>Cinematic Translator</h1>
+        <p className="subtitle">AI-Powered Video Dubbing & Globalization</p>
       </header>
 
-      <div className="card" style={{ background: '#1e293b', borderRadius: 12, padding: 30, border: '1px solid #334155' }}>
-        {(status === 'idle' || status === 'error') && (
-          <div className="upload-section">
-            <div className="form-group">
-              <label>1. Select Video</label>
-              <input type="file" accept="video/*" onChange={e => setFile(e.target.files?.[0] || null)} />
+      {/* Step Progress */}
+      {status !== 'idle' && status !== 'error' && (
+        <div className="steps-bar">
+          {steps.map((step, i) => (
+            <div key={step.key} className={`step ${i < currentStep ? 'completed' : ''} ${i === currentStep ? 'active' : ''}`}>
+              <div className="step-dot">
+                {i < currentStep ? (
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                ) : (
+                  <span>{i + 1}</span>
+                )}
+              </div>
+              <span className="step-label">{step.label}</span>
+              {i < steps.length - 1 && <div className="step-line" />}
             </div>
-            <div className="form-group">
-              <label>2. Target Language</label>
-              <select value={targetLang} onChange={e => setTargetLang(e.target.value)}>
-                {languages.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
-              </select>
-            </div>
-            <div className="form-group">
-              <label>3. Translation Engine</label>
-              <select value={engine} onChange={e => setEngine(e.target.value)}>
-                <option value="google">Google Translate</option>
-                <option value="gemini">Gemini 3.1 Flash Lite</option>
-              </select>
-            </div>
-            <button
-              className="primary-btn"
-              onClick={handleUpload}
-              disabled={!file}
-              style={{
-                background: file ? '#3b82f6' : '#475569',
-                color: 'white',
-                width: '100%',
-                padding: '12px 24px',
-                borderRadius: 8,
-                border: 'none',
-                fontSize: '1rem',
-                fontWeight: 600,
-                cursor: file ? 'pointer' : 'not-allowed',
-                opacity: file ? 1 : 0.5,
-                marginTop: 10,
-              }}
-            >
-              {file ? 'Start Processing' : 'Select a video file first'}
-            </button>
-          </div>
-        )}
+          ))}
+        </div>
+      )}
 
-        {status === 'selecting_voice' && (
-          <div className="voice-section">
-            <h2>Select Voiceover</h2>
-            <div className="form-group">
-              <select size={8} value={selectedVoice} onChange={e => setSelectedVoice(e.target.value)} className="voice-list">
-                {voices.map(v => <option key={v.Name} value={v.Name}>{v.Name} ({v.Gender})</option>)}
-              </select>
-            </div>
-            <div className="button-group">
-              <button className="secondary-btn" onClick={playSample}>Play Sample</button>
-              <button className="primary-btn" onClick={handleRender}>Render Final Video</button>
-            </div>
-            {sampleAudio && <audio ref={audioRef} src={sampleAudio} controls className="audio-player" />}
+      {/* Upload Section */}
+      {(status === 'idle' || status === 'error') && (
+        <div className="card">
+          <div
+            className={`drop-zone ${dragOver ? 'drag-over' : ''} ${file ? 'has-file' : ''}`}
+            onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="video/*"
+              onChange={e => setFile(e.target.files?.[0] || null)}
+              hidden
+            />
+            {file ? (
+              <div className="file-info">
+                <div className="file-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><polygon points="10,8 16,12 10,16" fill="#3b82f6" stroke="none"/></svg>
+                </div>
+                <div>
+                  <div className="file-name">{file.name}</div>
+                  <div className="file-size">{(file.size / 1024 / 1024).toFixed(1)} MB</div>
+                </div>
+              </div>
+            ) : (
+              <div className="drop-content">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="1.5">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <p className="drop-text">Drop your video here or click to browse</p>
+                <p className="drop-hint">Supports MP4, MOV, AVI, MKV</p>
+              </div>
+            )}
           </div>
-        )}
 
-        {status === 'done' && outputUrl && (
-          <div className="result-section">
-            <h2>Success!</h2>
-            <video src={outputUrl} controls className="video-player" />
-            <div className="button-group" style={{ flexDirection: 'column' }}>
-              <a href={outputUrl} download="Translated_Video.mp4" className="primary-btn download-btn">Download Video</a>
-              <a href="http://localhost:3001" target="_blank" rel="noreferrer" className="secondary-btn download-btn">Open in Editor (Remotion Studio)</a>
-              <button className="secondary-btn" onClick={() => { setStatus('idle'); setFile(null); setOutputUrl(''); setLogs(''); }}>Start Over</button>
+          <div className="settings-grid">
+            <div className="setting-card">
+              <label className="setting-label">Target Language</label>
+              <div className="lang-grid">
+                {languages.map(l => (
+                  <button
+                    key={l.code}
+                    className={`lang-chip ${targetLang === l.code ? 'selected' : ''}`}
+                    onClick={() => setTargetLang(l.code)}
+                  >
+                    <span className="lang-flag">{l.flag}</span>
+                    <span className="lang-name">{l.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="setting-card">
+              <label className="setting-label">Translation Engine</label>
+              <div className="engine-options">
+                {engines.map(eng => (
+                  <button
+                    key={eng.value}
+                    className={`engine-chip ${engine === eng.value ? 'selected' : ''}`}
+                    onClick={() => setEngine(eng.value)}
+                  >
+                    <span className="engine-name">{eng.label}</span>
+                    <span className="engine-desc">{eng.desc}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-        )}
 
-        {(status !== 'idle' || logs) && (
-          <div className="logs-console">
-            {['processing', 'rendering'].includes(status) && <div className="loader"></div>}
+          {status === 'error' && logs && (
+            <div className="error-banner">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#ef4444" strokeWidth="1.5"/><path d="M8 5v3M8 10.5v.5" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              <span>An error occurred. Check the log below or try again.</span>
+            </div>
+          )}
+
+          <button
+            className="primary-btn start-btn"
+            onClick={handleUpload}
+            disabled={!file}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5,3 19,12 5,21" fill="currentColor" stroke="none"/></svg>
+            <span>{file ? 'Start Processing' : 'Select a video to begin'}</span>
+          </button>
+        </div>
+      )}
+
+      {/* Voice Selection */}
+      {status === 'selecting_voice' && (
+        <div className="card">
+          <h2 className="section-title">Choose a Voice</h2>
+          <p className="section-desc">Select a voice for the dubbed audio track</p>
+          <div className="voice-grid">
+            {voices.map(v => (
+              <button
+                key={v.Name}
+                className={`voice-card ${selectedVoice === v.Name ? 'selected' : ''}`}
+                onClick={() => setSelectedVoice(v.Name)}
+              >
+                <div className="voice-info">
+                  <span className="voice-name">{v.Name.split('-').slice(-1)[0].replace(/Neural$/, '')}</span>
+                  <span className="voice-meta">{v.Gender}</span>
+                </div>
+                <button
+                  className="play-btn"
+                  onClick={e => { e.stopPropagation(); playSample(v.Name); }}
+                  disabled={playingVoice === v.Name}
+                >
+                  {playingVoice === v.Name ? (
+                    <div className="mini-loader" />
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                  )}
+                </button>
+              </button>
+            ))}
+          </div>
+          {sampleAudio && <audio ref={audioRef} src={sampleAudio} />}
+          <button className="primary-btn start-btn" onClick={handleRender}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>
+            <span>Render Final Video</span>
+          </button>
+        </div>
+      )}
+
+      {/* Done */}
+      {status === 'done' && outputUrl && (
+        <div className="card result-card">
+          <div className="success-badge">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#10b981"/><path d="M8 12l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <span>Video Ready</span>
+          </div>
+          <video src={outputUrl} controls className="video-player" />
+          <div className="result-actions">
+            <a href={outputUrl} download="Translated_Video.mp4" className="primary-btn download-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <span>Download Video</span>
+            </a>
+            <button className="secondary-btn" onClick={handleStartOver}>Start Over</button>
+          </div>
+        </div>
+      )}
+
+      {/* Logs Terminal */}
+      {(status !== 'idle' || logs) && logs && (
+        <div className="terminal">
+          <div className="terminal-header">
+            <div className="terminal-dots">
+              <span className="dot red" />
+              <span className="dot yellow" />
+              <span className="dot green" />
+            </div>
+            <span className="terminal-title">Console Output</span>
+          </div>
+          <div className="terminal-body">
+            {['processing', 'rendering'].includes(status) && <div className="loader" />}
             <pre>{logs}</pre>
+            <div ref={logsEndRef} />
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </main>
   );
 }
