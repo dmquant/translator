@@ -160,7 +160,7 @@ export default function Home() {
           <div className="upload-section">
             <div className="form-group">
               <label>1. Select Video</label>
-              <input type="file" accept="video/*" onChange={e => setFile(e.target.files?.[0] || null)} />
+              <input type="file" accept="video/*" onInput={e => setFile((e.target as HTMLInputElement).files?.[0] || null)} />
             </div>
             <div className="form-group">
               <label>2. Target Language</label>
