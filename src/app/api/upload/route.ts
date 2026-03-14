@@ -28,19 +28,34 @@ export async function POST(req: NextRequest) {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       start(controller) {
+        let closed = false;
+
+        const safeEnqueue = (chunk: Uint8Array) => {
+          if (!closed) {
+            controller.enqueue(chunk);
+          }
+        };
+
+        const safeClose = () => {
+          if (!closed) {
+            closed = true;
+            controller.close();
+          }
+        };
+
         pyProcess.stdout.on('data', (data) => {
-          controller.enqueue(encoder.encode(`DATA:${data.toString()}`));
+          safeEnqueue(encoder.encode(`DATA:${data.toString()}`));
         });
         pyProcess.stderr.on('data', (data) => {
-          controller.enqueue(encoder.encode(`LOG:${data.toString()}`));
+          safeEnqueue(encoder.encode(`LOG:${data.toString()}`));
         });
         pyProcess.on('close', (code) => {
           if (code === 0) {
-            controller.enqueue(encoder.encode('CLOSE:0'));
+            safeEnqueue(encoder.encode('CLOSE:0'));
           } else {
-            controller.enqueue(encoder.encode(`ERROR:Process exited with code ${code}`));
+            safeEnqueue(encoder.encode(`ERROR:Process exited with code ${code}`));
           }
-          controller.close();
+          safeClose();
         });
       }
     });
