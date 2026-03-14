@@ -1,21 +1,33 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 export default function Home() {
-  const [file, setFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState('');
   const [targetLang, setTargetLang] = useState('zh-CN');
   const [engine, setEngine] = useState('google');
   const [status, setStatus] = useState<'idle' | 'processing' | 'selecting_voice' | 'rendering' | 'done' | 'error'>('idle');
   const [logs, setLogs] = useState<string>('');
-  
+
   const [videoFile, setVideoFile] = useState('');
   const [jsonFile, setJsonFile] = useState('');
   const [voices, setVoices] = useState<any[]>([]);
   const [selectedVoice, setSelectedVoice] = useState('');
   const [sampleAudio, setSampleAudio] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [outputUrl, setOutputUrl] = useState('');
+
+  useEffect(() => {
+    const input = fileInputRef.current;
+    if (!input) return;
+    const handler = () => {
+      const f = input.files?.[0];
+      setFileName(f ? f.name : '');
+    };
+    input.addEventListener('change', handler);
+    return () => input.removeEventListener('change', handler);
+  }, []);
 
   const languages = [
     { code: 'zh-CN', label: 'Mandarin (Chinese)' },
@@ -57,10 +69,11 @@ export default function Home() {
   };
 
   const handleUpload = async () => {
+    const file = fileInputRef.current?.files?.[0];
     if (!file) return;
     setStatus('processing');
     setLogs('');
-    
+
     const formData = new FormData();
     formData.append('video', file);
     formData.append('lang', targetLang);
@@ -160,7 +173,7 @@ export default function Home() {
           <div className="upload-section">
             <div className="form-group">
               <label>1. Select Video</label>
-              <input type="file" accept="video/*" onInput={e => setFile((e.target as HTMLInputElement).files?.[0] || null)} />
+              <input ref={fileInputRef} type="file" accept="video/*" />
             </div>
             <div className="form-group">
               <label>2. Target Language</label>
@@ -178,9 +191,9 @@ export default function Home() {
             <button
               className="primary-btn"
               onClick={handleUpload}
-              disabled={!file}
+              disabled={!fileName}
               style={{
-                background: file ? '#3b82f6' : '#475569',
+                background: fileName ? '#3b82f6' : '#475569',
                 color: 'white',
                 width: '100%',
                 padding: '12px 24px',
@@ -188,12 +201,12 @@ export default function Home() {
                 border: 'none',
                 fontSize: '1rem',
                 fontWeight: 600,
-                cursor: file ? 'pointer' : 'not-allowed',
-                opacity: file ? 1 : 0.5,
+                cursor: fileName ? 'pointer' : 'not-allowed',
+                opacity: fileName ? 1 : 0.5,
                 marginTop: 10,
               }}
             >
-              {file ? 'Start Processing' : 'Select a video file first'}
+              {fileName ? 'Start Processing' : 'Select a video file first'}
             </button>
           </div>
         )}
@@ -221,7 +234,7 @@ export default function Home() {
             <div className="button-group" style={{ flexDirection: 'column' }}>
               <a href={outputUrl} download="Translated_Video.mp4" className="primary-btn download-btn">Download Video</a>
               <a href="http://localhost:3001" target="_blank" rel="noreferrer" className="secondary-btn download-btn">Open in Editor (Remotion Studio)</a>
-              <button className="secondary-btn" onClick={() => { setStatus('idle'); setFile(null); setOutputUrl(''); setLogs(''); }}>Start Over</button>
+              <button className="secondary-btn" onClick={() => { setStatus('idle'); setFileName(''); setOutputUrl(''); setLogs(''); if (fileInputRef.current) fileInputRef.current.value = ''; }}>Start Over</button>
             </div>
           </div>
         )}
