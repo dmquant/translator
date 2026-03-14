@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 
 export default function Home() {
   const [fileName, setFileName] = useState('');
@@ -15,19 +15,25 @@ export default function Home() {
   const [selectedVoice, setSelectedVoice] = useState('');
   const [sampleAudio, setSampleAudio] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [outputUrl, setOutputUrl] = useState('');
 
-  useEffect(() => {
-    const input = fileInputRef.current;
-    if (!input) return;
-    const handler = () => {
-      const f = input.files?.[0];
-      setFileName(f ? f.name : '');
-    };
-    input.addEventListener('change', handler);
-    return () => input.removeEventListener('change', handler);
+  const fileInputCallbackRef = useCallback((node: HTMLInputElement | null) => {
+    // Cleanup old listener
+    if (fileInputRef.current) {
+      fileInputRef.current.removeEventListener('change', handleFileChange);
+    }
+    fileInputRef.current = node;
+    // Attach listener to new node
+    if (node) {
+      node.addEventListener('change', handleFileChange);
+    }
   }, []);
+
+  function handleFileChange(this: HTMLInputElement) {
+    const f = this.files?.[0];
+    setFileName(f ? f.name : '');
+  }
 
   const languages = [
     { code: 'zh-CN', label: 'Mandarin (Chinese)' },
@@ -173,7 +179,7 @@ export default function Home() {
           <div className="upload-section">
             <div className="form-group">
               <label>1. Select Video</label>
-              <input ref={fileInputRef} type="file" accept="video/*" />
+              <input ref={fileInputCallbackRef} type="file" accept="video/*" />
             </div>
             <div className="form-group">
               <label>2. Target Language</label>
